@@ -1,5 +1,3 @@
-<div class="footer">
-	vtenigin
-</div>
+<div class="footer">vtenigin</div>
 </body>
 </html>
