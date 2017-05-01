@@ -3,10 +3,20 @@
 	include("header.php");
 ?>
 <div id="content">
-	<img src="img/ano.png" title="Ano" alt="ano" class="img" draggable="true" id="video_overlays">
-	<div id="video">
+
+	<div id="video" ondrop="drop(event)" ondragover="allowDrop(event)">
+		<div id="test">
+			<div id="super">
+				<img id="video_overlays" draggable="true" src="img/sumo.png">
+			</div>
+			<video poster="img/ano.png"></video>
+		</div>
+
+
+
+	</div>
+	<div id="preview">
 		<canvas id="canvas"></canvas>
-		<video poster="img/ano.png"></video>
 	</div>
 	<button id="pic">Take Picture</button>
 	<div id="images">
@@ -16,10 +26,23 @@
 	</div>
 </div>
 <script>
+	function allowDrop(e) {
+		e.preventDefault();
+	}
+
+	function drop(e) {
+		e.preventDefault();
+		var img = document.getElementById("video_overlays");
+		x = e.clientX;
+		y = e.clientY;
+		img.style.left = x + 'px';
+		img.style.top = y + 'px';
+	}
+
 	var video = document.querySelector('video');
 	var canvas = document.querySelector('canvas');
 	var context = canvas.getContext('2d');
-	var w, h, ratio;
+	// var w, h, ratio;
 
 	navigator.getMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia);
 	navigator.getMedia(
@@ -34,7 +57,7 @@
 	});
 
 	var pic = document.getElementById("video_overlays");
-	pic.style.width = "400px";//video.videoWidth;
+	// pic.style.width = "400px";//video.videoWidth;
 	// pic.style.height = video.videoHeight;
 	console.log(video.videoWidth);
 
