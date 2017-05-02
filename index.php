@@ -9,14 +9,17 @@
 			<div id="super">
 				<img id="video_overlays" draggable="true">
 			</div>
+			<canvas id="can" width="640" height="480"></canvas>
 			<video poster="img/ano.png"></video>
+			<img id="uploadimg">
 		</div>
 
 
 
 		<canvas id="canvas"></canvas>
 
-		<button id="pic">Take Picture</button>
+		<button class="pic" id="pic">Take Picture</button>
+		<input class="pic" type="file" id="fileUpload" accept="image/png">
 		<div id="images">
 			<?php
 				$pics = scandir("img");
@@ -31,8 +34,39 @@
 		<img id="preview">
 	</div>
 
+
+
 </div>
 <script>
+
+var video = document.querySelector('video');
+var canvas = document.querySelector('canvas');
+var context = canvas.getContext('2d');
+var pic = document.getElementById("video_overlays");
+
+var can  = el("can");
+var ctx = can.getContext("2d");
+var img = new Image();
+function el(id) {
+	return document.getElementById(id);
+} // Get elem by ID
+
+
+function readImage() {
+	if (this.files && this.files[0]) {
+		var FR = new FileReader();
+		FR.onload = function(e) {
+			img.onload = function() {
+				ctx.drawImage(img, 0, 0);
+			};
+			img.src = e.target.result;
+		};
+		FR.readAsDataURL(this.files[0]);
+	}
+}
+
+el("fileUpload").addEventListener("change", readImage, false);
+
 
 function allowDrop(e) {
 	e.preventDefault();
@@ -45,17 +79,14 @@ function usepic(pic) {
 
 function drop(e) {
 	e.preventDefault();
-	var img = document.getElementById("video_overlays");
+	var im = document.getElementById("video_overlays");
 	x = e.clientX;
 	y = e.clientY;
-	img.style.left = x + 'px';
-	img.style.top = y + 'px';
+	im.style.left = x + 'px';
+	im.style.top = y + 'px';
 }
 
-var video = document.querySelector('video');
-var canvas = document.querySelector('canvas');
-var context = canvas.getContext('2d');
-var pic = document.getElementById("video_overlays");
+
 
 navigator.getMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia);
 navigator.getMedia(
@@ -70,10 +101,16 @@ navigator.getMedia(
 
 document.getElementById("pic").addEventListener("click", function() {
 	document.getElementById("preview").src = "";
-	canvas.width = video.videoWidth;
-	canvas.height = video.videoHeight;
-	context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-	var data = encodeURIComponent(canvas.toDataURL());
+
+	if (img.height != 0) {
+		var data = encodeURIComponent(can.toDataURL());
+	} else {
+		canvas.width = video.videoWidth;
+		canvas.height = video.videoHeight;
+		context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+		var data = encodeURIComponent(canvas.toDataURL());
+	}
+
 	var xhr = new XMLHttpRequest();
 	xhr.open("POST", "savepic.php", true);
 	xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
@@ -83,8 +120,6 @@ document.getElementById("pic").addEventListener("click", function() {
 			console.log("click");
 		}
 	}
-	console.log(pic.offsetLeft);
-	console.log(pic.offsetTop);
 	xhr.send("pic=" + data + "&top=" + pic.src + "&x=" + pic.offsetLeft + "&y=" + pic.offsetTop);
 });
 
